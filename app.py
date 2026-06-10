@@ -8,6 +8,10 @@ st.set_page_config(
     layout="centered"
 )
 
+# Session State
+if "history" not in st.session_state:
+    st.session_state.history = []
+
 # Title
 st.title("🌍 Language Translation Tool")
 
@@ -54,22 +58,31 @@ user_text = st.text_area(
 )
 
 # Character Counter
-character_count = len(user_text)
-st.caption(f"Characters: {character_count}")
+st.caption(f"Characters: {len(user_text)}")
 
 # Translate Button
 if st.button("Translate", use_container_width=True):
 
     if user_text.strip() == "":
         st.warning("Please enter some text to translate.")
+
     elif source_language == target_language:
         st.warning("Source and Target languages cannot be the same.")
+
     else:
         try:
             translated_text = GoogleTranslator(
                 source=languages[source_language],
                 target=languages[target_language]
             ).translate(user_text)
+
+            # Save to history
+            st.session_state.history.append({
+                "source_language": source_language,
+                "target_language": target_language,
+                "original_text": user_text,
+                "translated_text": translated_text
+            })
 
             st.subheader("Translated Text")
 
@@ -81,3 +94,26 @@ if st.button("Translate", use_container_width=True):
 
         except Exception as e:
             st.error(f"Translation Error: {e}")
+
+# Clear History
+if st.session_state.history:
+    if st.button("🗑 Clear History"):
+        st.session_state.history = []
+        st.rerun()
+
+# Translation History
+if st.session_state.history:
+
+    st.markdown("---")
+    st.subheader("📜 Translation History")
+
+    for item in reversed(st.session_state.history):
+
+        with st.expander(
+            f"{item['source_language']} → {item['target_language']}"
+        ):
+            st.write("**Original Text:**")
+            st.write(item["original_text"])
+
+            st.write("**Translated Text:**")
+            st.write(item["translated_text"])
