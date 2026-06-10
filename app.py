@@ -7,11 +7,35 @@ st.set_page_config(
     page_icon="🌍",
     layout="centered"
 )
+# Sidebar
+st.sidebar.title("📌 Project Information")
+
+st.sidebar.markdown("""
+### 🌍 AI Language Translation Tool
+
+**Tech Stack**
+- Python
+- Streamlit
+- Deep Translator
+
+**Features**
+- Multi-language Translation
+- Translation History
+- Download Translation
+- Character Counter
+
+**Internship**
+CodeAlpha AI Internship
+""")
 
 # Session State
 if "history" not in st.session_state:
     st.session_state.history = []
+if "source_lang" not in st.session_state:
+    st.session_state.source_lang = "English"
 
+if "target_lang" not in st.session_state:
+    st.session_state.target_lang = "Hindi"
 # Title
 st.title("🌍 AI Language Translation Tool")
 
@@ -35,20 +59,39 @@ languages = {
 }
 
 # Language Selection
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns([5, 1, 5])
 
 with col1:
     source_language = st.selectbox(
         "Source Language",
-        list(languages.keys())
+        list(languages.keys()),
+        index=list(languages.keys()).index(
+            st.session_state.source_lang
+        )
     )
 
 with col2:
+    st.write("")
+    st.write("")
+
+    if st.button("⇄"):
+        st.session_state.source_lang, st.session_state.target_lang = (
+            st.session_state.target_lang,
+            st.session_state.source_lang
+        )
+        st.rerun()
+
+with col3:
     target_language = st.selectbox(
         "Target Language",
         list(languages.keys()),
-        index=1
+        index=list(languages.keys()).index(
+            st.session_state.target_lang
+        )
     )
+
+st.session_state.source_lang = source_language
+st.session_state.target_lang = target_language
 
 # Input Text
 user_text = st.text_area(
