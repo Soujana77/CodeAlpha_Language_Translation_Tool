@@ -1,4 +1,5 @@
 import streamlit as st
+from deep_translator import GoogleTranslator
 
 # Page Configuration
 st.set_page_config(
@@ -7,23 +8,61 @@ st.set_page_config(
     layout="centered"
 )
 
-# Application Title
+# Title
 st.title("🌍 Language Translation Tool")
 
-# Description
 st.write(
     "Translate text between multiple languages using AI-powered translation."
 )
 
-# Text Input Area
+# Supported Languages
+languages = {
+    "English": "en",
+    "Hindi": "hi",
+    "Kannada": "kn",
+    "Tamil": "ta",
+    "Telugu": "te",
+    "Malayalam": "ml",
+    "French": "fr",
+    "German": "de",
+    "Spanish": "es",
+    "Japanese": "ja",
+    "Chinese": "zh-CN"
+}
+
+# Source Language
+source_language = st.selectbox(
+    "Select Source Language",
+    list(languages.keys())
+)
+
+# Target Language
+target_language = st.selectbox(
+    "Select Target Language",
+    list(languages.keys()),
+    index=1
+)
+
+# Input Text
 user_text = st.text_area(
     "Enter Text",
     height=150
 )
 
 # Translate Button
-translate_button = st.button("Translate")
+if st.button("Translate"):
 
-# Temporary Action
-if translate_button:
-    st.success("Translation functionality will be added in the next step.")
+    if user_text.strip() == "":
+        st.warning("Please enter some text.")
+    else:
+        try:
+            translated_text = GoogleTranslator(
+                source=languages[source_language],
+                target=languages[target_language]
+            ).translate(user_text)
+
+            st.subheader("Translated Text")
+            st.success(translated_text)
+
+        except Exception as e:
+            st.error(f"Translation Error: {e}")
