@@ -1,41 +1,28 @@
 import streamlit as st
-from deep_translator import GoogleTranslator
 
-# Page Configuration
+from src.data.languages import LANGUAGES
+from src.services.translator import translate_text
+from src.components.sidebar import render_sidebar
+from src.styles.custom_css import load_css
+
+
+# Page Config
 st.set_page_config(
-    page_title="Language Translation Tool",
+    page_title="AI Language Translation Tool",
     page_icon="🌍",
     layout="centered"
 )
+
+# Load CSS
+load_css()
+
 # Sidebar
-st.sidebar.title("📌 Project Information")
-
-st.sidebar.markdown("""
-### 🌍 AI Language Translation Tool
-
-**Tech Stack**
-- Python
-- Streamlit
-- Deep Translator
-
-**Features**
-- Multi-language Translation
-- Translation History
-- Download Translation
-- Character Counter
-
-**Internship**
-CodeAlpha AI Internship
-""")
+render_sidebar()
 
 # Session State
 if "history" not in st.session_state:
     st.session_state.history = []
-if "source_lang" not in st.session_state:
-    st.session_state.source_lang = "English"
 
-if "target_lang" not in st.session_state:
-    st.session_state.target_lang = "Hindi"
 # Title
 st.title("🌍 AI Language Translation Tool")
 
@@ -43,55 +30,21 @@ st.write(
     "Translate text between multiple languages using AI-powered translation."
 )
 
-# Supported Languages
-languages = {
-    "English": "en",
-    "Hindi": "hi",
-    "Kannada": "kn",
-    "Tamil": "ta",
-    "Telugu": "te",
-    "Malayalam": "ml",
-    "French": "fr",
-    "German": "de",
-    "Spanish": "es",
-    "Japanese": "ja",
-    "Chinese": "zh-CN"
-}
-
 # Language Selection
-col1, col2, col3 = st.columns([5, 1, 5])
+col1, col2 = st.columns(2)
 
 with col1:
     source_language = st.selectbox(
         "Source Language",
-        list(languages.keys()),
-        index=list(languages.keys()).index(
-            st.session_state.source_lang
-        )
+        list(LANGUAGES.keys())
     )
 
 with col2:
-    st.write("")
-    st.write("")
-
-    if st.button("⇄"):
-        st.session_state.source_lang, st.session_state.target_lang = (
-            st.session_state.target_lang,
-            st.session_state.source_lang
-        )
-        st.rerun()
-
-with col3:
     target_language = st.selectbox(
         "Target Language",
-        list(languages.keys()),
-        index=list(languages.keys()).index(
-            st.session_state.target_lang
-        )
+        list(LANGUAGES.keys()),
+        index=1
     )
-
-st.session_state.source_lang = source_language
-st.session_state.target_lang = target_language
 
 # Input Text
 user_text = st.text_area(
@@ -107,19 +60,22 @@ st.caption(f"Characters: {len(user_text)}")
 if st.button("Translate", use_container_width=True):
 
     if user_text.strip() == "":
-        st.warning("Please enter some text to translate.")
+        st.warning("Please enter some text.")
 
     elif source_language == target_language:
-        st.warning("Source and Target languages cannot be the same.")
+        st.warning(
+            "Source and Target languages cannot be the same."
+        )
 
     else:
         try:
-            translated_text = GoogleTranslator(
-                source=languages[source_language],
-                target=languages[target_language]
-            ).translate(user_text)
 
-            # Save translation history
+            translated_text = translate_text(
+                user_text,
+                LANGUAGES[source_language],
+                LANGUAGES[target_language]
+            )
+
             st.session_state.history.append({
                 "source_language": source_language,
                 "target_language": target_language,
@@ -145,13 +101,13 @@ if st.button("Translate", use_container_width=True):
         except Exception as e:
             st.error(f"Translation Error: {e}")
 
-# Clear History Button
+# Clear History
 if st.session_state.history:
     if st.button("🗑 Clear History"):
         st.session_state.history = []
         st.rerun()
 
-# Translation History
+# History
 if st.session_state.history:
 
     st.markdown("---")
