@@ -13,7 +13,7 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 # Title
-st.title("🌍 Language Translation Tool")
+st.title("🌍 AI Language Translation Tool")
 
 st.write(
     "Translate text between multiple languages using AI-powered translation."
@@ -76,7 +76,7 @@ if st.button("Translate", use_container_width=True):
                 target=languages[target_language]
             ).translate(user_text)
 
-            # Save to history
+            # Save translation history
             st.session_state.history.append({
                 "source_language": source_language,
                 "target_language": target_language,
@@ -92,10 +92,17 @@ if st.button("Translate", use_container_width=True):
                 height=150
             )
 
+            st.download_button(
+                label="⬇ Download Translation",
+                data=translated_text,
+                file_name="translation.txt",
+                mime="text/plain"
+            )
+
         except Exception as e:
             st.error(f"Translation Error: {e}")
 
-# Clear History
+# Clear History Button
 if st.session_state.history:
     if st.button("🗑 Clear History"):
         st.session_state.history = []
