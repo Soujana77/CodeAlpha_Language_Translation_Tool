@@ -30,30 +30,40 @@ languages = {
     "Chinese": "zh-CN"
 }
 
-# Source Language
-source_language = st.selectbox(
-    "Select Source Language",
-    list(languages.keys())
-)
+# Language Selection
+col1, col2 = st.columns(2)
 
-# Target Language
-target_language = st.selectbox(
-    "Select Target Language",
-    list(languages.keys()),
-    index=1
-)
+with col1:
+    source_language = st.selectbox(
+        "Source Language",
+        list(languages.keys())
+    )
+
+with col2:
+    target_language = st.selectbox(
+        "Target Language",
+        list(languages.keys()),
+        index=1
+    )
 
 # Input Text
 user_text = st.text_area(
     "Enter Text",
-    height=150
+    height=150,
+    placeholder="Type or paste text here..."
 )
 
+# Character Counter
+character_count = len(user_text)
+st.caption(f"Characters: {character_count}")
+
 # Translate Button
-if st.button("Translate"):
+if st.button("Translate", use_container_width=True):
 
     if user_text.strip() == "":
-        st.warning("Please enter some text.")
+        st.warning("Please enter some text to translate.")
+    elif source_language == target_language:
+        st.warning("Source and Target languages cannot be the same.")
     else:
         try:
             translated_text = GoogleTranslator(
@@ -62,7 +72,12 @@ if st.button("Translate"):
             ).translate(user_text)
 
             st.subheader("Translated Text")
-            st.success(translated_text)
+
+            st.text_area(
+                "Output",
+                translated_text,
+                height=150
+            )
 
         except Exception as e:
             st.error(f"Translation Error: {e}")
